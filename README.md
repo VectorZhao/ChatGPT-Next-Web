@@ -1,31 +1,33 @@
 <div align="center">
-<img src="./docs/images/icon.svg" alt="icon"/>
+<img src="./docs/images/head-cover.png" alt="icon"/>
 
-<h1 align="center">ChatGPT Next Web</h1>
+<h1 align="center">NextChat (ChatGPT Next Web)</h1>
 
 English / [简体中文](./README_CN.md)
 
-One-Click to get well-designed cross-platform ChatGPT web UI.
+One-Click to get a well-designed cross-platform ChatGPT web UI, with GPT3, GPT4 & Gemini Pro support.
 
-一键免费部署你的跨平台私人 ChatGPT 应用。
+一键免费部署你的跨平台私人 ChatGPT 应用, 支持 GPT3, GPT4 & Gemini Pro 模型。
 
 [![Web][Web-image]][web-url]
 [![Windows][Windows-image]][download-url]
 [![MacOS][MacOS-image]][download-url]
 [![Linux][Linux-image]][download-url]
 
-[Web App](https://chatgpt.nextweb.fun/) / [Desktop App](https://github.com/Yidadaa/ChatGPT-Next-Web/releases) / [Discord](https://discord.gg/YCkeafCafC) / [Twitter](https://twitter.com/mortiest_ricky) / [Buy Me a Coffee](https://www.buymeacoffee.com/yidadaa)
+[Web App](https://app.nextchat.dev/) / [Desktop App](https://github.com/Yidadaa/ChatGPT-Next-Web/releases) / [Discord](https://discord.gg/YCkeafCafC) / [Twitter](https://twitter.com/NextChatDev)
 
-[网页版](https://chatgpt.nextweb.fun/) / [客户端](https://github.com/Yidadaa/ChatGPT-Next-Web/releases) / [反馈](https://github.com/Yidadaa/ChatGPT-Next-Web/issues) / [QQ 群](https://github.com/Yidadaa/ChatGPT-Next-Web/discussions/1724) / [打赏开发者](https://user-images.githubusercontent.com/16968934/227772541-5bcd52d8-61b7-488c-a203-0330d8006e2b.jpg)
+[网页版](https://app.nextchat.dev/) / [客户端](https://github.com/Yidadaa/ChatGPT-Next-Web/releases) / [反馈](https://github.com/Yidadaa/ChatGPT-Next-Web/issues)
 
-[web-url]: https://chatgpt.nextweb.fun
+[web-url]: https://app.nextchat.dev/
 [download-url]: https://github.com/Yidadaa/ChatGPT-Next-Web/releases
 [Web-image]: https://img.shields.io/badge/Web-PWA-orange?logo=microsoftedge
 [Windows-image]: https://img.shields.io/badge/-Windows-blue?logo=windows
 [MacOS-image]: https://img.shields.io/badge/-MacOS-black?logo=apple
 [Linux-image]: https://img.shields.io/badge/-Linux-333?logo=ubuntu
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FYidadaa%2FChatGPT-Next-Web&env=OPENAI_API_KEY&env=CODE&project-name=chatgpt-next-web&repository-name=ChatGPT-Next-Web)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FChatGPTNextWeb%2FChatGPT-Next-Web&env=OPENAI_API_KEY&env=CODE&project-name=nextchat&repository-name=NextChat)
+
+[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates/ZBUEFA)
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/Yidadaa/ChatGPT-Next-Web)
 
@@ -59,10 +61,11 @@ One-Click to get well-designed cross-platform ChatGPT web UI.
 
 ## What's New
 
-- 🚀 v2.0 is released, now you can create prompt templates, turn your ideas into reality! Read this: [ChatGPT Prompt Engineering Tips: Zero, One and Few Shot Prompting](https://www.allabtai.com/prompt-engineering-tips-zero-one-and-few-shot-prompting/).
-- 🚀 v2.7 let's share conversations as image, or share to ShareGPT!
-- 🚀 v2.8 now we have a client that runs across all platforms!
+- 🚀 v2.10.1 support Google Gemini Pro model.
 - 🚀 v2.9.11 you can use azure endpoint now.
+- 🚀 v2.8 now we have a client that runs across all platforms!
+- 🚀 v2.7 let's share conversations as image, or share to ShareGPT!
+- 🚀 v2.0 is released, now you can create prompt templates, turn your ideas into reality! Read this: [ChatGPT Prompt Engineering Tips: Zero, One and Few Shot Prompting](https://www.allabtai.com/prompt-engineering-tips-zero-one-and-few-shot-prompting/).
 
 ## 主要功能
 
@@ -189,6 +192,26 @@ Azure Api Key.
 
 Azure Api Version, find it at [Azure Documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions).
 
+### `GOOGLE_API_KEY` (optional)
+
+Google Gemini Pro Api Key.
+
+### `GOOGLE_URL` (optional)
+
+Google Gemini Pro Api Url.
+
+### `ANTHROPIC_API_KEY` (optional)
+
+anthropic claude Api Key.
+
+### `ANTHROPIC_API_VERSION` (optional)
+
+anthropic claude Api version.
+
+### `ANTHROPIC_URL` (optional)
+
+anthropic claude Api Url.
+
 ### `HIDE_USER_API_KEY` (optional)
 
 > Default: Empty
@@ -205,7 +228,7 @@ If you do not want users to use GPT-4, set this value to 1.
 
 > Default: Empty
 
-If you do want users to query balance, set this value to 1, or you should set it to 0.
+If you do want users to query balance, set this value to 1.
 
 ### `DISABLE_FAST_LINK` (optional)
 
@@ -221,6 +244,21 @@ If you want to disable parse settings from url, set this to 1.
 To control custom models, use `+` to add a custom model, use `-` to hide a model, use `name=displayName` to customize model name, separated by comma.
 
 User `-all` to disable all default models, `+all` to enable all default models.
+
+### `DEFAULT_MODEL` （optional）
+
+Change default model
+
+### `WHITE_WEBDEV_ENDPOINTS` (optional)
+
+You can use this option if you want to increase the number of webdav service addresses you are allowed to access, as required by the format：
+- Each address must be a complete endpoint 
+> `https://xxxx/yyy`
+- Multiple addresses are connected by ', '
+
+### `DEFAULT_INPUT_TEMPLATE` (optional)
+
+Customize the default template used to initialize the User Input Preprocessing configuration item in Settings.
 
 ## Requirements
 
@@ -350,9 +388,11 @@ If you want to add a new translation, read this [document](./docs/translation.md
 [@Licoy](https://github.com/Licoy)
 [@shangmin2009](https://github.com/shangmin2009)
 
-### Contributor
+### Contributors
 
-[Contributors](https://github.com/Yidadaa/ChatGPT-Next-Web/graphs/contributors)
+<a href="https://github.com/ChatGPTNextWeb/ChatGPT-Next-Web/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ChatGPTNextWeb/ChatGPT-Next-Web" />
+</a>
 
 ## LICENSE
 

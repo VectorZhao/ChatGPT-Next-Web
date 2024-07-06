@@ -1,16 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSideConfig } from "../config/server";
-import { DEFAULT_MODELS, OPENAI_BASE_URL } from "../constant";
-import { collectModelTable } from "../utils/model";
-import { makeAzurePath } from "../azure";
+import {
+  DEFAULT_MODELS,
+  OPENAI_BASE_URL,
+  GEMINI_BASE_URL,
+  ServiceProvider,
+} from "../constant";
+import { isModelAvailableInServer } from "../utils/model";
 
 const serverConfig = getServerSideConfig();
 
 export async function requestOpenai(req: NextRequest) {
   const controller = new AbortController();
 
-  const authValue = req.headers.get("Authorization") ?? "";
-  const authHeaderName = serverConfig.isAzure ? "api-key" : "Authorization";
+  const isAzure = req.nextUrl.pathname.includes("azure/deployments");
+
+  var authValue,
+    authHeaderName = "";
+  if (isAzure) {
+    authValue =
+      req.headers
+        .get("Authorization")
+        ?.trim()
+        .replaceAll("Bearer ", "")
+        .trim() ?? "";
+
+    authHeaderName = "api-key";
+  } else {
+    authValue = req.headers.get("Authorization") ?? "";
+    authHeaderName = "Authorization";
+  }
 
   let path = `${req.nextUrl.pathname}${req.nextUrl.search}`.replaceAll(
     "/api/openai/",
@@ -30,10 +49,6 @@ export async function requestOpenai(req: NextRequest) {
 
   console.log("[Proxy] ", path);
   console.log("[Base Url]", baseUrl);
-  // this fix [Org ID] undefined in server side if not using custom point
-  if (serverConfig.openaiOrgId !== undefined) {
-    console.log("[Org ID]", serverConfig.openaiOrgId);
-  }
 
   const timeoutId = setTimeout(
     () => {
@@ -42,14 +57,15 @@ export async function requestOpenai(req: NextRequest) {
     10 * 60 * 1000,
   );
 
-  if (serverConfig.isAzure) {
-    if (!serverConfig.azureApiVersion) {
-      return NextResponse.json({
-        error: true,
-        message: `missing AZURE_API_VERSION in server env vars`,
-      });
-    }
-    path = makeAzurePath(path, serverConfig.azureApiVersion);
+  if (isAzure) {
+    const azureApiVersion =
+      req?.nextUrl?.searchParams?.get("api-version") ||
+      serverConfig.azureApiVersion;
+    baseUrl = baseUrl.split("/deployments").shift() as string;
+    path = `${req.nextUrl.pathname.replaceAll(
+      "/api/azure/",
+      "",
+    )}?api-version=${azureApiVersion}`;
   }
 
   const fetchUrl = `${baseUrl}/${path}`;
@@ -74,17 +90,24 @@ export async function requestOpenai(req: NextRequest) {
   // #1815 try to refuse gpt4 request
   if (serverConfig.customModels && req.body) {
     try {
-      const modelTable = collectModelTable(
-        DEFAULT_MODELS,
-        serverConfig.customModels,
-      );
       const clonedBody = await req.text();
       fetchOptions.body = clonedBody;
 
       const jsonBody = JSON.parse(clonedBody) as { model?: string };
 
       // not undefined and is false
-      if (modelTable[jsonBody?.model ?? ""].available === false) {
+      if (
+        isModelAvailableInServer(
+          serverConfig.customModels,
+          jsonBody?.model as string,
+          ServiceProvider.OpenAI as string,
+        ) ||
+        isModelAvailableInServer(
+          serverConfig.customModels,
+          jsonBody?.model as string,
+          ServiceProvider.Azure as string,
+        )
+      ) {
         return NextResponse.json(
           {
             error: true,
@@ -103,11 +126,34 @@ export async function requestOpenai(req: NextRequest) {
   try {
     const res = await fetch(fetchUrl, fetchOptions);
 
+    // Extract the OpenAI-Organization header from the response
+    const openaiOrganizationHeader = res.headers.get("OpenAI-Organization");
+
+    // Check if serverConfig.openaiOrgId is defined and not an empty string
+    if (serverConfig.openaiOrgId && serverConfig.openaiOrgId.trim() !== "") {
+      // If openaiOrganizationHeader is present, log it; otherwise, log that the header is not present
+      console.log("[Org ID]", openaiOrganizationHeader);
+    } else {
+      console.log("[Org ID] is not set up.");
+    }
+
     // to prevent browser prompt for credentials
     const newHeaders = new Headers(res.headers);
     newHeaders.delete("www-authenticate");
     // to disable nginx buffering
     newHeaders.set("X-Accel-Buffering", "no");
+
+    // Conditionally delete the OpenAI-Organization header from the response if [Org ID] is undefined or empty (not setup in ENV)
+    // Also, this is to prevent the header from being sent to the client
+    if (!serverConfig.openaiOrgId || serverConfig.openaiOrgId.trim() === "") {
+      newHeaders.delete("OpenAI-Organization");
+    }
+
+    // The latest version of the OpenAI API forced the content-encoding to be "br" in json response
+    // So if the streaming is disabled, we need to remove the content-encoding header
+    // Because Vercel uses gzip to compress the response, if we don't remove the content-encoding header
+    // The browser will try to decode the response with brotli and fail
+    newHeaders.delete("content-encoding");
 
     return new Response(res.body, {
       status: res.status,
